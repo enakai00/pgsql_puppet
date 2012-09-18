@@ -51,7 +51,8 @@ class pgsql {
       logoutput   => true,
       refreshonly => true,
       before      => [Service['postgresql'],
-                      File['/var/lib/pgsql/data/pg_hba.conf']],
+                      File['/var/lib/pgsql/data/pg_hba.conf'],
+                      File['/var/lib/pgsql/data/postgresql.conf']],
     ;
   }
 }
