@@ -1,7 +1,7 @@
 class pgsql {
   service { 'postgresql':
     name      => 'postgresql',
-#    ensure    => running,
+##    ensure    => running,
     enable    => true,
     subscribe => Package['postgresql-server'],
   }
