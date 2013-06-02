@@ -1,23 +1,25 @@
-class pgsql {
-  service { 'postgresql':
-    name      => 'postgresql',
-##    ensure    => running,
-    enable    => true,
-    subscribe => Package['postgresql-server'],
-  }
-
+class pgsql_install {
   package { 'postgresql-server':
-    name   => 'postgresql-server',
-    ensure => installed,
+    ensure => latest,
   }   
+}
 
+class pgsql_service {
+  service { 'postgresql':
+    ensure     => running,
+    hasrestart => true,
+    hasstatus  => true,
+    enable     => true,
+  }
+}
+
+class pgsql_init {
   file { '/var/lib/pgsql/data/postgresql.conf':
     owner   => 'postgres',
     group   => 'postgres',
     mode    => '0600',
     source  => "$manifest_dir/dist/postgresql.conf",
-    notify  => Service['postgresql'],
-    require => Exec['initdb'],
+    require => [Exec['initdb'], Exec['init_pw']],
   }
 
   file { '/var/lib/pgsql/data/pg_hba.conf':
@@ -25,8 +27,7 @@ class pgsql {
     group   => 'postgres',
     mode    => '0600',
     source  => "$manifest_dir/dist/pg_hba.conf",
-    notify  => Service['postgresql'],
-    require => Exec['initdb'],
+    require => [Exec['initdb'], Exec['init_pw']],
   }
 
   exec {
@@ -35,8 +36,6 @@ class pgsql {
       command   => 'service postgresql initdb',
       logoutput => true,
       creates   => '/var/lib/pgsql/data/PG_VERSION',
-      before    => Service['postgresql'],
-      require   => Package['postgresql-server'],
       notify    => Exec['init_pw'],
     ;
 
@@ -48,11 +47,14 @@ class pgsql {
                       service postgresql stop',
       logoutput   => true,
       refreshonly => true,
-      before      => [Service['postgresql'],
-                      File['/var/lib/pgsql/data/pg_hba.conf'],
-                      File['/var/lib/pgsql/data/postgresql.conf']],
     ;
   }
 }
 
-include 'pgsql'
+include 'pgsql_install'
+include 'pgsql_init'
+include 'pgsql_service'
+
+Class['pgsql_install'] -> Class['pgsql_init'] ~> Class['pgsql_service']
+Class['pgsql_install'] ~> Class['pgsql_service']
+
