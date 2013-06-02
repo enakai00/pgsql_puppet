@@ -6,7 +6,7 @@ class pgsql_install {
 
 class pgsql_service {
   service { 'postgresql':
-    ensure     => running,
+##    ensure     => running,
     hasrestart => true,
     hasstatus  => true,
     enable     => true,
