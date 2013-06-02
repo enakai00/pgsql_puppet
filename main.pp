@@ -51,6 +51,8 @@ class pgsql_init {
   }
 }
 
+import 'variables.pp'
+
 include 'pgsql_install'
 include 'pgsql_init'
 include 'pgsql_service'
