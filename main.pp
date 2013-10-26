@@ -6,7 +6,7 @@ class pgsql_install {
 
 class pgsql_service {
   service { 'postgresql':
-##    ensure     => running,
+    ensure     => running,
     hasrestart => true,
     hasstatus  => true,
     enable     => true,
@@ -14,14 +14,6 @@ class pgsql_service {
 }
 
 class pgsql_init {
-  file { '/var/lib/pgsql/data/postgresql.conf':
-    owner   => 'postgres',
-    group   => 'postgres',
-    mode    => '0600',
-    source  => "$manifest_dir/dist/postgresql.conf",
-    require => [Exec['initdb'], Exec['init_pw']],
-  }
-
   file { '/var/lib/pgsql/data/pg_hba.conf':
     owner   => 'postgres',
     group   => 'postgres',
@@ -32,8 +24,8 @@ class pgsql_init {
 
   exec {
     'initdb':
-      path      => '/sbin',
-      command   => 'service postgresql initdb',
+      path      => ['/sbin', '/bin'],
+      command   => 'postgresql-setup initdb',
       logoutput => true,
       creates   => '/var/lib/pgsql/data/PG_VERSION',
       notify    => Exec['init_pw'],
