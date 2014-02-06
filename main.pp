@@ -22,6 +22,14 @@ class pgsql_init {
     require => [Exec['initdb'], Exec['init_pw']],
   }
 
+  file { '/var/lib/pgsql/data/postgresql.conf':
+    owner   => 'postgres',
+    group   => 'postgres',
+    mode    => '0600',
+    source  => "$manifest_dir/dist/postgresql.conf",
+    require => [Exec['initdb'], Exec['init_pw']],
+  }
+
   exec {
     'initdb':
       path      => ['/sbin', '/bin'],
